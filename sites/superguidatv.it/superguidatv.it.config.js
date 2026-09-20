@@ -87,24 +87,24 @@ module.exports = {
   }
 }
 
+// superguidatv.it was redesigned (Qwik + Tailwind-ish utility classes,
+// e.g. "sgtv-w-20 sgtv-text-center..."), replacing the old
+// sgtvchannelplan_* markup this scraper originally targeted. Verified
+// against the live site 2026-09-20: each schedule row is an <li> with a
+// time <p> and a title/category <p> pair, still server-rendered (no JS
+// execution needed).
 function parseStart($item, date) {
-  const hours = $item('.sgtvchannelplan_hoursCell')
-    .clone()
-    .children('.sgtvOnairSpan')
-    .remove()
-    .end()
-    .text()
-    .trim()
+  const hours = $item('.sgtv-w-20.sgtv-text-center.sgtv-text-lg.sgtv-font-bold').text().trim()
 
   return dayjs.tz(`${date.format('YYYY-MM-DD')} ${hours}`, 'YYYY-MM-DD HH:mm', 'Europe/Rome').utc()
 }
 
 function parseTitle($item) {
-  return $item('.sgtvchannelplan_spanInfoNextSteps').text().trim()
+  return $item('.sgtv-truncate.sgtv-leading-tight').text().trim()
 }
 
 function parseCategory($item) {
-  const eventType = $item('.sgtvchannelplan_spanEventType').text().trim()
+  const eventType = $item('.sgtv-truncate.sgtv-text-sm').text().trim()
   const [, category] = eventType.match(/(^[^(]+)/) || [null, '']
 
   return category.trim()
@@ -113,7 +113,5 @@ function parseCategory($item) {
 function parseItems(content) {
   const $ = cheerio.load(content)
 
-  return $('.sgtvchannelplan_divContainer > .sgtvchannelplan_divTableRow')
-    .has('#containerInfoEvent')
-    .toArray()
+  return $('li').has('.sgtv-w-20.sgtv-text-center.sgtv-text-lg.sgtv-font-bold').toArray()
 }
